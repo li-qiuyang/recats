@@ -1,0 +1,33 @@
+Experiment: MSL
+
+
+--------------------------------------------------
+based on accuracy score
+Lifelong Accuracy: 0.9727
+BWT: -0.0003
+FWT: 0.9658
+FM: 0.0004
+--------------------------------------------------
+based on precision score
+Lifelong Precision: 0.913
+BWT: -0.0012
+FWT: 0.8886
+FM: 0.0016
+--------------------------------------------------
+based on recall score
+Lifelong Recall: 0.9431
+BWT: 0.0
+FWT: 0.9253
+FM: 0.0
+--------------------------------------------------
+based on f1 score
+Lifelong F1-score: 0.9251
+BWT: -0.0006
+FWT: 0.9034
+FM: 0.0009
+--------------------------------------------------
+based on roc_auc score
+Lifelong ROC-AUC: 0.9601
+BWT: -0.0002
+FWT: 0.9492
+FM: 0.0003

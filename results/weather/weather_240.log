@@ -1,0 +1,33 @@
+Experiment: weather
+
+
+--------------------------------------------------
+based on accuracy score
+Lifelong Accuracy: 0.8557
+BWT: 0.024
+FWT: 0.8276
+FM: -0.0035
+--------------------------------------------------
+based on precision score
+Lifelong Precision: 0.9339
+BWT: 0.0123
+FWT: 0.9315
+FM: 0.0052
+--------------------------------------------------
+based on recall score
+Lifelong Recall: 0.8171
+BWT: 0.032
+FWT: 0.7748
+FM: -0.0086
+--------------------------------------------------
+based on f1 score
+Lifelong F1-score: 0.8713
+BWT: 0.0238
+FWT: 0.8457
+FM: -0.0042
+--------------------------------------------------
+based on roc_auc score
+Lifelong ROC-AUC: 0.8653
+BWT: 0.0223
+FWT: 0.8427
+FM: -0.0021

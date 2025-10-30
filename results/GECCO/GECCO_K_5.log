@@ -1,0 +1,33 @@
+Experiment: GECCO
+
+
+--------------------------------------------------
+based on accuracy score
+Lifelong Accuracy: 0.9883
+BWT: 0.0118
+FWT: 0.996
+FM: -0.0017
+--------------------------------------------------
+based on precision score
+Lifelong Precision: 0.8776
+BWT: 0.0405
+FWT: 0.9286
+FM: 0.0259
+--------------------------------------------------
+based on recall score
+Lifelong Recall: 0.9792
+BWT: 0.0674
+FWT: 0.9969
+FM: 0.0
+--------------------------------------------------
+based on f1 score
+Lifelong F1-score: 0.9203
+BWT: 0.0629
+FWT: 0.96
+FM: -0.0037
+--------------------------------------------------
+based on roc_auc score
+Lifelong ROC-AUC: 0.9847
+BWT: 0.0347
+FWT: 0.9965
+FM: -0.001

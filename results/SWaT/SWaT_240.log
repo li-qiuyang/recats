@@ -1,0 +1,33 @@
+Experiment: SWaT
+
+
+--------------------------------------------------
+based on accuracy score
+Lifelong Accuracy: 0.9858
+BWT: 0.0016
+FWT: 0.9818
+FM: 0.0066
+--------------------------------------------------
+based on precision score
+Lifelong Precision: 0.9401
+BWT: 0.016
+FWT: 0.9105
+FM: 0.0148
+--------------------------------------------------
+based on recall score
+Lifelong Recall: 0.9935
+BWT: -0.004
+FWT: 0.9666
+FM: 0.0042
+--------------------------------------------------
+based on f1 score
+Lifelong F1-score: 0.9633
+BWT: 0.0068
+FWT: 0.9319
+FM: 0.0098
+--------------------------------------------------
+based on roc_auc score
+Lifelong ROC-AUC: 0.9875
+BWT: 0.0002
+FWT: 0.9754
+FM: 0.0062

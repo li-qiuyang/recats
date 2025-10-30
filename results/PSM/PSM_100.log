@@ -1,0 +1,33 @@
+Experiment: PSM
+
+
+--------------------------------------------------
+based on accuracy score
+Lifelong Accuracy: 0.9913
+BWT: 0.0108
+FWT: 0.9907
+FM: -0.0023
+--------------------------------------------------
+based on precision score
+Lifelong Precision: 0.9702
+BWT: 0.0079
+FWT: 0.9744
+FM: 0.0145
+--------------------------------------------------
+based on recall score
+Lifelong Recall: 0.9935
+BWT: 0.0196
+FWT: 0.994
+FM: -0.0144
+--------------------------------------------------
+based on f1 score
+Lifelong F1-score: 0.9815
+BWT: 0.0151
+FWT: 0.9839
+FM: -0.0027
+--------------------------------------------------
+based on roc_auc score
+Lifelong ROC-AUC: 0.9836
+BWT: 0.0247
+FWT: 0.9826
+FM: 0.0021

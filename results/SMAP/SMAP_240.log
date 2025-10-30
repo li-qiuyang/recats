@@ -1,0 +1,33 @@
+Experiment: SMAP
+
+
+--------------------------------------------------
+based on accuracy score
+Lifelong Accuracy: 0.9407
+BWT: 0.0548
+FWT: 0.9287
+FM: 0.0001
+--------------------------------------------------
+based on precision score
+Lifelong Precision: 0.7978
+BWT: 0.0992
+FWT: 0.7513
+FM: 0.0003
+--------------------------------------------------
+based on recall score
+Lifelong Recall: 0.9434
+BWT: 0.0983
+FWT: 0.9279
+FM: 0.0
+--------------------------------------------------
+based on f1 score
+Lifelong F1-score: 0.8462
+BWT: 0.1025
+FWT: 0.8126
+FM: 0.0002
+--------------------------------------------------
+based on roc_auc score
+Lifelong ROC-AUC: 0.9383
+BWT: 0.0508
+FWT: 0.928
+FM: 0.0001
