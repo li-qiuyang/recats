@@ -1,4 +1,5 @@
 
+from turtle import mode
 import numpy as np
 import torch
 
@@ -35,29 +36,24 @@ def prepare_class_samplres(task_id, class_table):
 
 
 def generate_images(curr_global_decoder, z, task_ids):
-    example = curr_global_decoder(z)
+    example = curr_global_decoder(z,mode='global')
     return example
 
 
 def generate_noise_for_previous_data(n_prev_examples, n_task, latent_size, tasks_dist, device, num_local=0, same_z=False):
-    if same_z:
-        tasks_dist_tensor = torch.tensor(tasks_dist, device=device)  # 将 tasks_dist 转换为张量
-        # 获取最大值并将其转换为整数
-        max_value = max(torch.cat([tasks_dist_tensor, torch.tensor([num_local], device=device)]).tolist())
-        max_value = int(max_value)
-        z_max = torch.randn((max_value, latent_size)).to(device)
-        z = []
+    tasks_dist_tensor = torch.tensor(tasks_dist, device=device)  # 将 tasks_dist 转换为张量
+    # 获取最大值并将其转换为整数
+    max_value = max(torch.cat([tasks_dist_tensor, torch.tensor([num_local], device=device)]).tolist())
+    max_value = int(max_value)
+    # print(max_value)
+    z_max = torch.randn((max_value, latent_size)).to(device)
+    z = []
 
-        for task_id, n_prev_examples in enumerate(tasks_dist):
-            n_prev_examples = n_prev_examples.item() if isinstance(n_prev_examples, torch.Tensor) else n_prev_examples
-            # print(n_prev_examples)
-            # print(type(n_prev_examples))  float
-            z.append(z_max[:int(n_prev_examples)])
-        z = torch.cat(z)
-        return z, z_max
-    else:
-        z = torch.randn([n_prev_examples, latent_size]).to(device)
-        return z
+    for task_id, n_prev_examples in enumerate(tasks_dist):
+        n_prev_examples = n_prev_examples.item() if isinstance(n_prev_examples, torch.Tensor) else n_prev_examples
+        z.append(z_max[:int(n_prev_examples)])
+    z = torch.cat(z)
+    return z
 
 
 
@@ -83,15 +79,12 @@ def generate_previous_data(curr_global_decoder, n_tasks, n_prev_examples, num_lo
         assert len(task_ids) == n_prev_examples
 
         # 生成来自先前任务的噪声
-        z_combined = generate_noise_for_previous_data(n_prev_examples, n_tasks, curr_global_decoder.latent_size,tasks_dist,
+        z = generate_noise_for_previous_data(n_prev_examples, n_tasks, curr_global_decoder.latent_size,tasks_dist,
                                                       device=curr_global_decoder.device, num_local=num_local,
                                                       same_z=same_z)
 
-        if same_z:
-            z, _ = z_combined
 
-        if return_z:  ######
 
-            example = generate_images(curr_global_decoder, z, task_ids)
-            return example, z_combined, task_ids
+        example = generate_images(curr_global_decoder, z, task_ids)
+        return example, z, task_ids
 

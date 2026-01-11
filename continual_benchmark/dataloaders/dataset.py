@@ -121,36 +121,6 @@ def preprocess_swat(path,window_size=20000,train_ratio=0.7):
             'features': test_features,
             'labels': test_data['Normal/Attack'].values
         }
-    # n_samples = len(data)
-    #
-    # for window_id, start_idx in enumerate(range(0, n_samples, window_size)):
-    #     end_idx = min(start_idx + window_size, n_samples)
-    #     window_feat = data.iloc[start_idx:end_idx]
-    #
-    #     normal_data = window_feat[window_feat['Normal/Attack'] == 0]
-    #     anomaly_data = window_feat[window_feat['Normal/Attack'] == 1]
-    #
-    #     # 训练集只包含正常样本（按时间顺序取前70%）
-    #     split_index = int(len(normal_data) * 0.7)
-    #     train_data = normal_data.iloc[:split_index].sort_values(by='Timestamp')
-    #     test_normal = normal_data.iloc[split_index:]
-    #
-    #     # 测试集包含剩余正常样本+全部异常样本
-    #     test_data = pd.concat([test_normal, anomaly_data]).sort_values(by='Timestamp')
-    #
-    #     scaler = StandardScaler().fit(train_data[features])
-    #     train_features = scaler.transform(train_data[features])
-    #     test_features = scaler.transform(test_data[features])
-    #
-    #     # 存储结果
-    #     window_data['train'][window_id] = {
-    #         'features': train_features,
-    #         'labels': train_data['Normal/Attack'].values
-    #     }
-    #     window_data['test'][window_id] = {
-    #         'features': test_features,
-    #         'labels': test_data['Normal/Attack'].values
-    #     }
 
     return window_data
 
@@ -214,40 +184,6 @@ def preprocess_psm(data_path, label_path, window_size=2000, train_ratio=0.7):
             'labels': np.zeros(len(scaled_train))  # 训练集全为正常
         }
         window_data['test'][window_id] = {
-            'features': scaled_test,
-            'labels': test_labels
-        }
-
-    return window_data
-
-def preprocess_smd():
-    window_data = {'train': {}, 'test': {}}
-    data_set_number = ["1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-9","3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-9","3-10","3-11"]
-    for index, data_set_id in enumerate(data_set_number):
-        file = f"machine-{data_set_id}_train.pkl"
-        train_path = "./data/SMD/" + file
-        test_path="./data/SMD/" + file.replace("_train.pkl","_test.pkl")
-        label_path="./data/SMD/" + file.replace("_train.pkl","_test_label.pkl")
-        train_feat = pickle.load(
-            open(train_path, "rb")
-        )
-        test_feat = pickle.load(
-            open(test_path, "rb")
-        )
-        test_labels = pickle.load(
-            open(label_path, "rb")
-        )
-
-
-        scaler = StandardScaler().fit(train_feat)
-        scaled_train = scaler.transform(train_feat)
-        scaled_test = scaler.transform(test_feat)
-        # 存储任务数据
-        window_data['train'][index] = {
-            'features': scaled_train,
-            'labels': np.zeros(len(scaled_train))  # 训练集全为正常
-        }
-        window_data['test'][index] = {
             'features': scaled_test,
             'labels': test_labels
         }
@@ -440,13 +376,3 @@ def preprocess_GECCO(data_path, label_path, window_size=1000, train_ratio=0.7):
 
     return window_data
 
-
-# 使用示例
-# if __name__ == '__main__':
-#
-#     # data = preprocess_creditcard('../../data/NIPS_TS_Creditcard/NIPS_TS_creditcard_test.npy','../../data/NIPS_TS_Creditcard/NIPS_TS_creditcard_test_label.npy')
-#     print(data)
-#     print(data['train'][0]['features'].shape)
-#     train_datasets = create_datasets(data, mode='train', mask_ratio=0.5)
-#     print(train_datasets[0][0])
-#     print(train_datasets[0][0]['original_data'].shape)

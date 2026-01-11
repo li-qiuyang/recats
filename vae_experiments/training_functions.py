@@ -102,7 +102,7 @@ def train_global_decoder(curr_global_decoder, local_vae, task_id, n_epochs=100, 
 
     # 将当前全局解码器存储到 tmp_decoder
     tmp_decoder = curr_global_decoder
-
+    # attn = nn.MultiheadAttention(embed_dim=200, num_heads=4, batch_first=False)
     for epoch in range(n_epochs):
         losses = []
         start = time.time()
@@ -121,7 +121,7 @@ def train_global_decoder(curr_global_decoder, local_vae, task_id, n_epochs=100, 
                 return_z=True,
                 translate_noise=True,
                 same_z=train_same_z)
-            z_prev, z_max = z_prev
+            
 
             with torch.no_grad():
                 recon_local = next(iter(train_loader))
@@ -157,10 +157,10 @@ def train_global_decoder(curr_global_decoder, local_vae, task_id, n_epochs=100, 
                 end_point = min(len(task_ids_concat), (batch_id + 1) * batch_size)
                 if start_point >= end_point:
                     continue
-                global_recon = global_decoder(z_concat[start_point:end_point])
+                global_recon = global_decoder(z_concat[start_point:end_point],mode="global")
                 # gloal_recon是当前全局解码器生成的样本，recon_concat是由先前任务和当前任务的样本拼接得到的样本
                 loss = criterion(global_recon, recon_concat[start_point:end_point]) #.sum(dim=-1).mean(dim=-1)
-
+ 
                 loss.backward()
                 optimizer.step()
                 losses.append(loss.item())
@@ -170,7 +170,7 @@ def train_global_decoder(curr_global_decoder, local_vae, task_id, n_epochs=100, 
             print("Epoch: {}/{}, loss: {}, took: {} s".format(epoch + 1, n_epochs, np.mean(losses), time.time() - start))
     return global_decoder
 
-def compute_threshold(local_vae, curr_global_decoder, task_id, train_loader, test_loader, window_size=270, weight_train=0.1, weight_test=0.9,modify=1.77, global_persent=98, clear_persent=99):
+def compute_threshold(local_vae, curr_global_decoder, task_id, train_loader, test_loader, window_size=270, weight_train=0.1, weight_test=0.9,q=1.77, global_persent=98, clear_persent=99):
     local_vae.eval()
     curr_global_decoder.eval()
     if train_loader is not None:
@@ -193,7 +193,7 @@ def compute_threshold(local_vae, curr_global_decoder, task_id, train_loader, tes
                 loss = mse_loss_fn(recon_x,x).mean(dim=-1).cpu().numpy()
                 train_reconstruction_errors.extend(_ for _ in loss)
 
-        alpha = np.percentile(train_reconstruction_errors, global_persent)*modify
+        alpha = np.percentile(train_reconstruction_errors, global_persent)*q
 
 
     thresholds = []
@@ -261,109 +261,4 @@ def detect_anomalies(local_vae, curr_global_decoder, y_true, test_loader, thresh
 
     y_pred_test = [1 if anomaly else 0 for anomaly in anomalies]
     y_pred_test = prediction_adjust(y_pred_test, y_true)
-    # # plot_anomalies(y_true, y_pred_test, reconstruction_errors)
     return y_pred_test
-
-
-#
-# def compute_threshold(local_vae, curr_global_decoder, task_id, train_loader, test_loader, window_size=120, weight_train=0.5, weight_test=0.5,modify=1, global_persent=70, clear_persent=99,temperature=50.0,anomaly_ratio=0.5):
-#     # local_vae.eval()
-#     # curr_global_decoder.eval()
-#     train_energy = []
-#     if train_loader is not None:
-#         with torch.no_grad():
-#             for batch in train_loader:
-#                 x = batch
-#
-#                 x = x['original_data'].to(local_vae.device, dtype=torch.float32)
-#                 # print(x.shape[0])
-#                 qz, means, log_var, mu_w, logvar_w = local_vae.encoder(x)
-#                 log_var = torch.clamp(log_var, min=-20.0, max=10.0)
-#                 std = torch.exp(0.5 * log_var)
-#                 eps = torch.randn_like(std)
-#                 z_local = eps * std + means
-#                 recon_x = curr_global_decoder(z_local)
-#                 # loss = F.binary_cross_entropy(recon_x,x,reduction='none').mean(dim=-1).cpu().numpy()
-#
-#                 mse_loss_fn = nn.MSELoss(reduction='none')
-#                 loss = mse_loss_fn(recon_x,x).mean(dim=-1)
-#                 KLD_W = -0.5 * torch.sum(1 + logvar_w - mu_w.pow(2) - logvar_w.exp())
-#                 metric = torch.softmax(-temperature * KLD_W.unsqueeze(-1),dim=-1)
-#                 energy = metric * loss
-#
-#                 train_energy.extend(energy.cpu().numpy())
-#         global_threshold = np.percentile(train_energy, global_persent)
-#     test_energy = []
-#     with torch.no_grad():
-#         for batch in test_loader:
-#             x = batch
-#             x = x['original_data'].to(local_vae.device)
-#
-#             # print(x.shape[0])
-#             qz, means, log_var, mu_w, logvar_w = local_vae.encoder(x)
-#             std = torch.exp(0.5 * log_var)
-#             eps = torch.randn_like(std).to(local_vae.device)
-#             # print(std.shape)
-#             z_local = eps * std + means
-#             recon_x = curr_global_decoder(z_local)
-#             mse_loss_fn = nn.MSELoss(reduction='none')
-#             loss = mse_loss_fn(recon_x, x).mean(dim=-1)
-#             KLD_W = -0.5 * torch.sum(1 + logvar_w - mu_w.pow(2) - logvar_w.exp())
-#             metric = torch.softmax(-temperature * KLD_W.unsqueeze(-1), dim=-1)
-#             energy = metric * loss
-#             test_energy.extend(energy.cpu().numpy())
-#
-#     combined_energy = np.concatenate([train_energy, test_energy])
-#     threshold =[]
-#     # threshold = np.percentile(combined_energy, 100-anomaly_ratio)
-#
-#     for idx in range(len(test_energy)):
-#         start_idx = max(0, idx - window_size // 2)
-#         end_idx = min(len(test_energy), idx + window_size // 2)
-#         local_errors = np.array(test_energy[start_idx:end_idx])
-#
-#         local_threshold = np.percentile(local_errors, 100-anomaly_ratio)
-#
-#         if train_loader is not None:
-#             window_threshold = weight_train * global_threshold + weight_test * local_threshold
-#         else:
-#             window_threshold = local_threshold
-#         threshold.append(window_threshold)
-#     return threshold
-#
-# def detect_anomalies(local_vae, curr_global_decoder, y_true, test_loader, threshold,temperature=50.0):
-#     # local_vae.eval()
-#     # curr_global_decoder.eval()
-#     anomalies = []
-#     reconstruction_errors = []
-#
-#     with torch.no_grad():
-#
-#         for idx, batch in enumerate(test_loader):
-#             x = batch
-#
-#             x = x['original_data'].to(local_vae.device, dtype=torch.float32)
-#             qz, mu_x, logvar_x, mu_w, logvar_w = local_vae.encoder(x)
-#             std_x = torch.exp(0.5 * logvar_x)
-#             eps = torch.randn_like(std_x)
-#             z = mu_x + eps * std_x
-#             reconstructed_x = curr_global_decoder(z)
-#             mse_loss_fn = nn.MSELoss(reduction='none')
-#
-#             loss = mse_loss_fn(reconstructed_x, x).mean(dim=-1)
-#             KLD_W = -0.5 * torch.sum(1 + logvar_w - mu_w.pow(2) - logvar_w.exp())
-#             metric = torch.softmax(-temperature * KLD_W.unsqueeze(-1), dim=-1)
-#             energy = metric * loss
-#             reconstruction_errors.extend(energy.cpu().numpy())
-#
-#     for idx, error in enumerate(reconstruction_errors):
-#         window_threshold = threshold[idx]
-#         flag = error > window_threshold
-#         anomalies.append(flag)
-#
-#     y_pred_test = [1 if anomaly else 0 for anomaly in anomalies]
-#     # y_pred_test = [1 if error > threshold else 0 for error in reconstruction_errors]
-#     y_pred_test = prediction_adjust(y_pred_test, y_true)
-#     # plot_anomalies(y_true, y_pred_test, reconstruction_errors)
-#     return y_pred_test
-#

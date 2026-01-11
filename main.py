@@ -7,7 +7,7 @@ import torch.utils.data as data
 from collections import OrderedDict
 
 from continual_benchmark.dataloaders.dataset import preprocess_swat, preprocess_psm, \
-    preprocess_weather, create_datasets, preprocess_smap, preprocess_smd, preprocess_GECCO
+    preprocess_weather, create_datasets, preprocess_smap, preprocess_GECCO
 from vae_experiments import multiband_training, training_functions
 
 from vae_experiments.validation import calculate_metrics
@@ -51,10 +51,6 @@ def run(args):
 
         train_dataset_splits = create_datasets(weather_data, mode='train', mask_ratio=0.3)
         test_dataset_splits = create_datasets(weather_data, mode='test', mask_ratio=0)
-    elif args.dataset == 'SMD':  #28个机器每个机器38个维度。每个机器算一个任务
-        smd_data = preprocess_smd()
-        train_dataset_splits = create_datasets(smd_data, mode='train', mask_ratio=0.5)
-        test_dataset_splits = create_datasets(smd_data, mode='test', mask_ratio=0)
     elif args.dataset == 'MSL':
         # PSM dataset
         msl_data = preprocess_smap(
@@ -148,7 +144,7 @@ def run(args):
                                                                   window_size=args.window_size,
                                                                   weight_train = args.weight_train,
                                                                   weight_test = args.weight_test,
-                                                                  modify=args.modify,
+                                                                  q=args.q,
                                                                   global_persent=args.global_persent,
                                                                   clear_persent = args.clear_persent)
             # 进行异常检测
@@ -191,7 +187,7 @@ def run(args):
                                                                           window_size=args.window_size,
                                                                           weight_train=args.weight_train,
                                                                           weight_test=args.weight_test,
-                                                                          modify=args.modify,
+                                                                          q=args.q,
                                                                           global_persent=args.global_persent,
                                                                           clear_persent=args.clear_persent
                                                                           )
@@ -239,7 +235,7 @@ def run(args):
                                                                           window_size=args.window_size,
                                                                           weight_train=args.weight_train,
                                                                           weight_test=args.weight_test,
-                                                                          modify=args.modify,
+                                                                          q=args.q,
                                                                           global_persent=args.global_persent,
                                                                           clear_persent = args.clear_persent
                                                                           )
@@ -273,7 +269,7 @@ def get_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--weight_train', type=float,default=0.1)
     parser.add_argument('--weight_test', type=float,default=0.9)
-    parser.add_argument('--modify', type=float, default=1.32)
+    parser.add_argument('--q', type=float, default=1.32)
     parser.add_argument('--global_persent', type=int, default=94)
     parser.add_argument('--clear_persent', type=int, default=98)
     parser.add_argument('--window_size', type=int, default=100, help='window size for compute local threshold')
@@ -346,4 +342,3 @@ if __name__ == '__main__':
     np.save(f"{args.rpath}{args.experiment_name}/accuracy.npy", acc_table)
     np.save(f"{args.rpath}{args.experiment_name}/f1_score.npy", f1_table)
     np.save(f"{args.rpath}{args.experiment_name}/roc_auc.npy", auc_table)
-    plot_final_results([args.experiment_name])

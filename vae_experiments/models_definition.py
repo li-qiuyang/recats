@@ -29,6 +29,7 @@ class Encoder(nn.Module):
         self.mu_w = nn.Linear(64, 150)
         self.logvar_w = nn.Linear(64, 150)
         self.qz = nn.Linear(64, args.K)
+        
     def forward(self, X):
         X = self.fc1(X)
         X = F.relu(X)
@@ -43,10 +44,12 @@ class Encoder(nn.Module):
         mu_w = self.mu_w(X)
         logvar_w = self.logvar_w(X)
         return qz, mu_x, logvar_x, mu_w, logvar_w
+
 class Decoder(nn.Module):
-    def __init__(self,latent_size,input_features ,device):
+    def __init__(self,latent_size,input_features ,device, args):
         # 解码器
         super(Decoder, self).__init__()
+        self.args = args
         self.device = device
         self.latent_size = latent_size
         self.input_features = input_features
@@ -55,8 +58,17 @@ class Decoder(nn.Module):
         self.fc5 = nn.Linear(128, 256)
         # self.b5 = nn.BatchNorm1d(256)
         self.fc6 = nn.Linear(256, self.input_features)
+        # self.attn = nn.MultiheadAttention(embed_dim=200, num_heads=4, batch_first=False)
 
-    def forward(self, x):
+
+    def forward(self, x, mode="local"):
+        # if mode == "global":
+        #     x_prev = x[:-self.args.gen_batch_size] # noise
+        #     t = x_prev.clone()
+        #     x_local = x[-self.args.gen_batch_size:] # encoder -> local hidden dim
+        #     x_prev, _ = self.attn(x_prev, x_local, x_local) # x_prev 注意到了 local hidden di
+        #     x_prev = x_prev * 0.2 + t * 0.8
+        #     x = torch.cat([x_prev, x_local], dim=0)
         h = self.fc4(x)
         h = F.relu(h)
         h = self.fc5(h)
@@ -86,7 +98,7 @@ class GMVAE(nn.Module):
         elif args.dataset =="GECCO":
             self.input_features = 9
         self.encoder = Encoder(args, self.input_features).to(args.device)
-        self.decoder = Decoder(self.latent_size,self.input_features,device=args.device)
+        self.decoder = Decoder(self.latent_size,self.input_features,device=args.device, args=args)
         self.K=args.K
 
         # 先验生成器
