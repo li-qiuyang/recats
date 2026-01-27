@@ -1,3 +1,4 @@
+《CoMTSAD: Continual Anomaly Detection for Multivariate Time Series》
 1. **运行训练**(以 weather 数据集为例):
    ```bash
    bash scripts/weather.sh
