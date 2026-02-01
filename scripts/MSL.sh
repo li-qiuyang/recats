@@ -1,7 +1,7 @@
 python main.py \
     --weight_train 0.6 \
     --weight_test 0.4 \
-    --modify 1.95 \
+    --q 1.95 \
     --global_persent 98 \
     --clear_persent 98 \
     --window_size 240 \
